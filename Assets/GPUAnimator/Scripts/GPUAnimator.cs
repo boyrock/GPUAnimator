@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class GPUAnimator : MonoBehaviour {
 
-    ComputeBuffer positionBuffer;
-    ComputeBuffer normalBuffer;
+    public ComputeBuffer positionBuffer;
+    public ComputeBuffer normalBuffer;
 
     Vector3[] positions;
     Vector3[] normals;
