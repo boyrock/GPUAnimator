@@ -1,7 +1,7 @@
 # Step
 
 
-1. Change Animation Type into Legarcy Type
+1. Change Animation Type into Legacy Type
 
 ![image](https://github.com/boyrock/GPUAnimator/blob/master/SampleImage/s00_.png)
 
