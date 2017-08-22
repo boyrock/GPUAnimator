@@ -1,0 +1,57 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel UpdateAnimation
+#pragma kernel TransitionAnimation
+
+Texture2D<float3> PositionAnimTexture;
+Texture2D<float3> PositionAnimTexture_Next;
+Texture2D<float3> NormalAnimTexture;
+Texture2D<float3> NormalAnimTexture_Next;
+
+float AnimationTime;
+float AnimationTime_Next;
+
+RWStructuredBuffer<float3> PositionBuffer;
+RWStructuredBuffer<float3> NormalBuffer;
+
+float4 TexelSize;
+float4 TexelSize_Next;
+
+float TransitionTime;
+
+float3 tex2D(Texture2D<float3> tex, uint id, float t, float4 texelSize)
+{
+	float x = id;
+	float normalized_t = fmod(t, 1.0);
+	float y = normalized_t * (texelSize.w);
+
+	float3 p0 = tex[float2(x, trunc(y))];
+	float3 p1 = tex[float2(x, trunc(y) + 1)];
+
+	if (y > texelSize.w - 1)
+		p1 = tex[float2(x, 0)];
+
+	return lerp(p0, p1, frac(y));
+}
+
+[numthreads(8, 1, 1)]
+void UpdateAnimation(uint id : SV_DispatchThreadID)
+{
+	float3 pos = tex2D(PositionAnimTexture, id, AnimationTime, TexelSize);
+	float3 normal = tex2D(NormalAnimTexture, id, AnimationTime, TexelSize);
+
+	PositionBuffer[id] = pos;
+	NormalBuffer[id] = normal;
+}
+
+[numthreads(8, 1, 1)]
+void TransitionAnimation(uint id : SV_DispatchThreadID)
+{
+	float3 pos = tex2D(PositionAnimTexture, id, AnimationTime, TexelSize);
+	float3 normal = tex2D(NormalAnimTexture, id, AnimationTime, TexelSize);
+
+	float3 next_pos = tex2D(PositionAnimTexture_Next, id, AnimationTime_Next, TexelSize_Next);
+	float3 next_normal = tex2D(NormalAnimTexture_Next, id, AnimationTime_Next, TexelSize_Next);
+
+	PositionBuffer[id] = lerp(pos, next_pos, TransitionTime);
+	NormalBuffer[id] = lerp(normal, next_normal, TransitionTime);
+}
