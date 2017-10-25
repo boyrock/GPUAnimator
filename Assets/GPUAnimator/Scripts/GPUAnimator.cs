@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class GPUAnimator : MonoBehaviour {
 
-    public ComputeBuffer positionBuffer;
+    public ComputeBuffer vertexBuffer;
     public ComputeBuffer normalBuffer;
 
     Vector3[] positions;
@@ -58,9 +58,9 @@ public class GPUAnimator : MonoBehaviour {
 
     private void InitBuffer()
     {
-        positionBuffer = new ComputeBuffer(vertexCount, Marshal.SizeOf(typeof(Vector3)));
+        vertexBuffer = new ComputeBuffer(vertexCount, Marshal.SizeOf(typeof(Vector3)));
         positions = new Vector3[vertexCount];
-        positionBuffer.SetData(positions);
+        vertexBuffer.SetData(positions);
 
         normalBuffer = new ComputeBuffer(vertexCount, Marshal.SizeOf(typeof(Vector3)));
         normals = new Vector3[vertexCount];
@@ -133,7 +133,7 @@ public class GPUAnimator : MonoBehaviour {
 
             kernelShader.SetFloat("TransitionTime", transition.normalizedTime);
 
-            kernelShader.SetBuffer(transitionAnimation_kernelIndex, "PositionBuffer", positionBuffer);
+            kernelShader.SetBuffer(transitionAnimation_kernelIndex, "PositionBuffer", vertexBuffer);
             kernelShader.SetBuffer(transitionAnimation_kernelIndex, "NormalBuffer", normalBuffer);
 
             kernelShader.Dispatch(transitionAnimation_kernelIndex, vertexCount / 8 + 1, 1, 1);
@@ -143,13 +143,13 @@ public class GPUAnimator : MonoBehaviour {
             kernelShader.SetTexture(updateAnimation_kernelIndex, "PositionAnimTexture", curr_anim.positionAnimTexture);
             kernelShader.SetTexture(updateAnimation_kernelIndex, "NormalAnimTexture", curr_anim.normalAnimTexture);
 
-            kernelShader.SetBuffer(updateAnimation_kernelIndex, "PositionBuffer", positionBuffer);
+            kernelShader.SetBuffer(updateAnimation_kernelIndex, "PositionBuffer", vertexBuffer);
             kernelShader.SetBuffer(updateAnimation_kernelIndex, "NormalBuffer", normalBuffer);
 
             kernelShader.Dispatch(updateAnimation_kernelIndex, vertexCount / 8 + 1, 1, 1);
         }
 
-        block.SetBuffer("PositionBuffer", positionBuffer);
+        block.SetBuffer("PositionBuffer", vertexBuffer);
         block.SetBuffer("NormalBuffer", normalBuffer);
 
         _renderer.SetPropertyBlock(block);
@@ -157,8 +157,8 @@ public class GPUAnimator : MonoBehaviour {
 
     private void OnDisable()
     {
-        if (positionBuffer != null)
-            positionBuffer.Release();
+        if (vertexBuffer != null)
+            vertexBuffer.Release();
 
         if (normalBuffer != null)
             normalBuffer.Release();

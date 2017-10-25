@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class AnimationBakerMenu {
 
-    [MenuItem("GameObject/AnimationBaker/Bake2Tex")]
+    [MenuItem("GameObject/AnimationBaker/Bake2Tex", false, 10)]
     private static void BakeAnimation(MenuCommand menuCommand)
     {
         var targetObject = menuCommand.context as GameObject;
